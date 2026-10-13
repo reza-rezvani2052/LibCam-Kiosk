@@ -1,0 +1,32 @@
+# Python and generated Qt files
+__pycache__/
+*.py[cod]
+ui_*.py
+resources_rc.py
+
+# Local environment and editor files
+.venv/
+.idea/
+.env
+.env.*
+!.env.example
+
+# Build artifacts and logs
+/build/
+/dist/
+*.log
+logs/
+
+# Downloaded Kiosk Pose model (prepared during development/build)
+models/yolo/yolo26n-pose.pt
+models/yolo/yolo26n-pose.pt.download
+
+# Local output and temporary JPGs
+samanpl.jpg
+samanpl.tmp.jpg
+
+
+/0-MyInfos
+/member-photos
+database.db
+gallery.npz

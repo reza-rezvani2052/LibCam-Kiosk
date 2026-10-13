@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="images/app-icon.ico">images/app-icon.ico</file>
+        <file alias="qml/KioskMain.qml">../qml/KioskMain.qml</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,10 @@
+# Minimal direct dependencies for the standalone Kiosk source environment.
+numpy==2.5.2
+opencv-python==4.14.0.94
+PySide6==6.11.2
+pygrabber==0.2
+torch==2.13.0
+torchvision==0.28.0
+ultralytics==8.4.132
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.7
