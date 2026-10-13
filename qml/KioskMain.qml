@@ -7,7 +7,7 @@ ApplicationWindow {
     id: window
     visible: true
     width: 1220
-    height: 760
+    height: 666
     minimumWidth: 960
     minimumHeight: 690
     title: "LibCam Kiosk | ثبت عکس عضویت"

@@ -18,8 +18,9 @@ resources_rc.py
 logs/
 
 # Downloaded Kiosk Pose model (prepared during development/build)
-models/yolo/yolo26n-pose.pt
-models/yolo/yolo26n-pose.pt.download
+# models/yolo/yolo26n-pose.pt
+# models/yolo/yolo26n-pose.pt.download
+# models/yolo/yolov8n-face-lindevs.pt
 
 # Local output and temporary JPGs
 samanpl.jpg
