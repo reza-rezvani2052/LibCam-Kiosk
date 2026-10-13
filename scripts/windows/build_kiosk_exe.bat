@@ -10,5 +10,6 @@ if not exist "%PYTHON%" set "PYTHON=python"
 "%PYTHON%" tools\build\build_kiosk_exe.py
 set "EXIT_CODE=%ERRORLEVEL%"
 
+pause
 popd
 exit /b %EXIT_CODE%
