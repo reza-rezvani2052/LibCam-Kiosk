@@ -40,8 +40,8 @@ The build script validates both local model files, forces a fresh Qt resource co
 
 The output layout is:
 
-    dist/kiosk/LibCamKiosk/
-        LibCamKiosk.exe
+    dist/LibCam-Kiosk/
+        LibCam-Kiosk.exe
         _internal/             # Python/Qt dependencies and QML import modules
         models/
             yolo/
@@ -67,7 +67,7 @@ The GitHub Actions workflow uses Python 3.13 on Ubuntu, compiles the resource co
     qml/KioskMain.qml                     # Source-of-truth UI
     resources/resources.qrc                # Embedded QML and icon resources
     resources_rc.py                        # Generated Python resource module (ignored by Git)
-    LibCamKiosk.spec                      # PyInstaller configuration
+    LibCam-Kiosk.spec                      # PyInstaller configuration
     app/components/member_photo_kiosk/     # Controller, models, gesture and crop workflow
     app/infrastructure/camera/             # Camera adapter
     tools/build/build_qml_resources.py     # Timestamp-aware QRC compilation
@@ -82,4 +82,4 @@ The GitHub Actions workflow uses Python 3.13 on Ubuntu, compiles the resource co
 - At startup the application removes only its own previous output JPG and temporary JPG. It never clears the whole Pictures folder.
 - If the prior output cannot be removed, capture is disabled to avoid leaving an old member's photo available for the next visitor.
 - Model inference and gesture recognition depend on the camera, framing, lighting, and CPU. Validate these on the actual deployment setup.
-- Runtime logs are written to **%LOCALAPPDATA%\LibCamKiosk\logs\libcam-kiosk.log** on Windows, with rotation enabled.
+- Runtime logs are written to **%LOCALAPPDATA%\LibCam-Kiosk\logs\libcam-kiosk.log** on Windows, with rotation enabled.
