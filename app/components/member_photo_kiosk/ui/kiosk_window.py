@@ -178,10 +178,11 @@ class KioskController(QObject):
                 error=True,
             )
 
-        self._start_vision_worker()
-        self._open_camera()
         if self._privacy_cleanup_ok:
             self._set_status("در حال آماده‌سازی دوربین و مدل‌های تشخیص تصویر…")
+
+        self._start_vision_worker()
+        self._open_camera()
 
     def _remove_previous_photo_at_startup(self) -> bool:
         """Remove only Kiosk-owned output, never other files in the directory."""
