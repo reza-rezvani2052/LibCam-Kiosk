@@ -29,7 +29,7 @@ From the project root on Windows:
     .venv\Scripts\python.exe -m pip install -r requirements-kiosk.txt
     .venv\Scripts\python.exe run_kiosk_dev.py
 
-The face model must be available through Git LFS. The Pose model is downloaded during preparation when it is missing; an internet connection is needed on the first run. The launcher automatically rebuilds **resources_rc.py** when the QRC manifest or a referenced resource (including **qml/KioskMain.qml**) is newer than the generated file. There is no normal need to invoke the resource compiler by hand.
+Both model files must already be present in **models/yolo/** before launch. Developers who clone the repository may need **git lfs pull** to fetch LFS-managed model weights. The development launcher validates both local files and fails with a clear error if either is missing or incomplete; it never downloads model weights. The launcher automatically rebuilds **resources_rc.py** when the QRC manifest or a referenced resource (including **qml/KioskMain.qml**) is newer than the generated file. There is no normal need to invoke the resource compiler by hand.
 
 The development launcher allows virtual cameras, such as ManyCam, for testing. This setting is explicit and is not the packaged default.
 
@@ -45,7 +45,7 @@ The output directory is **dist/kiosk/LibCamKiosk/**. The bundle contains:
 - **_internal/** for Python/Qt dependencies and Qt Quick QML import modules.
 - **models/yolo/** beside the executable, containing **yolov8n-face-lindevs.pt** and **yolo26n-pose.pt**.
 
-The build checks model files, refreshes compiled Qt resources, builds through **LibCamKiosk.spec**, copies the model files beside the executable, and reports total duration as **HH:MM:SS** even if the build fails. Model files intentionally stay outside **_internal/** so runtime path resolution is consistent in source and packaged runs.
+The build validates both model files before packaging, refreshes compiled Qt resources, builds through **LibCamKiosk.spec**, copies the model files beside the executable, and reports total duration as **HH:MM:SS** even if the build fails. If a model is missing or incomplete, the build stops rather than downloading it. Model files intentionally stay outside **_internal/** so runtime path resolution is consistent in source and packaged runs.
 
 ## Camera policy
 
@@ -73,7 +73,7 @@ Confirm the webcam is connected and available to Windows. In packaged mode, chec
 
 **The camera opens, but capture is disabled**
 
-Wait for both camera and model readiness. If the required model is missing or incomplete, run the development launcher to prepare assets; verify that the face detector was fetched with Git LFS and that the Pose model can be downloaded.
+Wait for both camera and model readiness. If either required model is missing or incomplete, place the correct model file in **models/yolo/** and rerun the application. The launcher does not download model files. For an LFS-managed file in a developer checkout, use **git lfs pull** to prepare the local repository before launch.
 
 **Automatic hand-raise capture does not trigger**
 

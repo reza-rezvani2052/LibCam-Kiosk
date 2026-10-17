@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import QObject, QThread, Signal
@@ -15,7 +14,7 @@ from app.components.member_photo_kiosk.core.gesture_detector import (
     is_hand_raised,
 )
 from app.components.member_photo_kiosk.core.image_cropper import crop_detected_face
-from app.components.member_photo_kiosk.model_assets import MINIMUM_MODEL_BYTES
+from app.components.member_photo_kiosk.model_assets import is_model_file_valid
 from app.components.member_photo_kiosk.paths import face_model_path, pose_model_path
 
 logger = logging.getLogger("libcam_kiosk")
@@ -108,22 +107,18 @@ class KioskVisionWorker(QObject):
             self._latest_frame = None
             return frame, None
 
-    @staticmethod
-    def _model_file_is_valid(path: Path) -> bool:
-        return path.is_file() and path.stat().st_size >= MINIMUM_MODEL_BYTES
-
     def _load_models(self) -> bool:
         missing = [
             path for path in (self.pose_path, self.face_path)
-            if not self._model_file_is_valid(path)
+            if not is_model_file_valid(path)
         ]
         if missing:
             paths = "\n".join(str(path) for path in missing)
             self.error.emit(
-                "فایل مدل موردنیاز پیدا نشد یا کامل نیست:\n"
+                "فایل مدل موردنیاز پیدا نشد یا ناقص است:\n"
                 f"{paths}\n\n"
-                "در اجرای توسعه‌ای، run_kiosk_dev.py را اجرا کنید. "
-                "برای مدل تشخیص چهره مطمئن شوید Git LFS نصب و مدل‌ها دریافت شده‌اند."
+                "هر دو فایل مدل باید از قبل در پوشه models/yolo کنار برنامه قرار داشته باشند. "
+                "برنامه هیچ فایلی را از اینترنت دانلود نمی‌کند."
             )
             return False
 

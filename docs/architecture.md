@@ -10,7 +10,7 @@ The Kiosk is a PySide6 application with a Qt Quick/QML presentation layer and a 
 
 ### Startup sequence
 
-1. **run_kiosk_dev.py** is the source-development entry point. It checks the face model, prepares the YOLO Pose model if missing, and asks **build_qml_resources.py** to update the generated Qt resource module when needed. It then calls **kiosk_main.main(allow_virtual_cameras=True)**.
+1. **run_kiosk_dev.py** is the source-development entry point. It validates that both model files already exist locally and asks **build_qml_resources.py** to update the generated Qt resource module when needed. If either model is missing or incomplete, startup preparation stops with an error; no model download is attempted. It then calls **kiosk_main.main(allow_virtual_cameras=True)**.
 2. **build_qml_resources.py** parses **resources/resources.qrc**, inspects the manifest and all files referenced by it, and recompiles **resources_rc.py** if the output is missing or any input is newer. This specifically includes changes to **qml/KioskMain.qml**, even when the QRC manifest itself has not changed. The release build forces this compilation.
 3. **kiosk_main.py** configures rotating logging, creates **QGuiApplication** and **QQmlApplicationEngine**, registers **VideoFrameItem** as **LibCam.Kiosk 1.0**, injects the **KioskController** as the **kiosk** context property, and loads **qrc:/qml/KioskMain.qml**.
 4. The root window receives the application icon from the embedded resources. After QML loads, **Component.onCompleted** attaches the **VideoFrameItem**; the controller then starts its vision worker and camera.
@@ -64,14 +64,15 @@ Manual capture uses the latest available frame and schedules the request through
 
 Runtime model paths are defined in **app/components/member_photo_kiosk/paths.py**:
 
-- **models/yolo/yolov8n-face-lindevs.pt**: face detector tracked using Git LFS; source runs require **git lfs pull**.
-- **models/yolo/yolo26n-pose.pt**: YOLO Pose weights downloaded at preparation/build time from the official Ultralytics assets release when missing. The first run/build therefore requires internet access unless the file is already present.
+- **models/yolo/yolov8n-face-lindevs.pt**: the face detector; it is tracked using Git LFS in the source repository.
+- **models/yolo/yolo26n-pose.pt**: the YOLO Pose weights supplied locally by the developer.
+- **model_assets.py** validates local model files and rejects missing, undersized, or likely Git-LFS-pointer files. It performs no network access. Source runs and builds fail with a clear error if either model is absent or incomplete.
 
 The PyInstaller build is isolated from the main application's packaging. **LibCamKiosk.spec** resolves Qt Quick imports from the active PySide6 installation's **qml** directory and adds the QML tree to the analysis data. PyInstaller's default **_internal/** layout is retained for dependencies and QML modules; models are not included in the spec's data list.
 
 **tools/build/build_kiosk_exe.py** performs this sequence:
 
-1. Validate the face model and prepare the pose model.
+1. Validate both local model files; stop immediately if either is missing or incomplete. The build never downloads model weights.
 2. Force regeneration of **resources_rc.py**.
 3. Run PyInstaller with **LibCamKiosk.spec**.
 4. Verify **dist/kiosk/LibCamKiosk/LibCamKiosk.exe** exists.

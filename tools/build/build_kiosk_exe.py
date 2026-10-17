@@ -12,19 +12,23 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from app.components.member_photo_kiosk.model_assets import (  # noqa: E402
-    MINIMUM_MODEL_BYTES,
-    ensure_pose_model,
+    is_model_file_valid,
 )
 from app.components.member_photo_kiosk.paths import face_model_path, pose_model_path  # noqa: E402
 from tools.build.build_qml_resources import convert_qrc_file_to_python  # noqa: E402
 
 
-def check_face_model() -> None:
-    model_path = face_model_path()
-    if not model_path.is_file() or model_path.stat().st_size < MINIMUM_MODEL_BYTES:
+def check_model_files() -> None:
+    """Fail fast unless both required model files are present locally."""
+    model_paths = (face_model_path(), pose_model_path())
+    invalid_paths = [path for path in model_paths if not is_model_file_valid(path)]
+    if invalid_paths:
+        paths = "\n".join(str(path) for path in invalid_paths)
         raise FileNotFoundError(
-            "Face-detection model is missing or incomplete: "
-            f"{model_path}\nInstall Git LFS and run 'git lfs pull'."
+            "Required model file(s) are missing or incomplete:\n"
+            f"{paths}\n"
+            "Place both model files in the repository's models/yolo directory. "
+            "The build does not download model files."
         )
 
 
@@ -32,7 +36,7 @@ def copy_runtime_models(bundle_directory: Path) -> Path:
     """Copy model weights beside the executable, outside PyInstaller's _internal directory."""
     sources = (face_model_path(), pose_model_path())
     for source in sources:
-        if not source.is_file() or source.stat().st_size < MINIMUM_MODEL_BYTES:
+        if not is_model_file_valid(source):
             raise FileNotFoundError(
                 f"Required model is missing or incomplete: {source}"
             )
@@ -56,8 +60,7 @@ def main() -> int:
     started_at = time.perf_counter()
     try:
         try:
-            check_face_model()
-            ensure_pose_model(pose_model_path())
+            check_model_files()
             convert_qrc_file_to_python(force=True)
             subprocess.run(
                 [

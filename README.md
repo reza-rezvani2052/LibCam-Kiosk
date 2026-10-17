@@ -24,7 +24,7 @@ Run these commands from the repository root in Windows Command Prompt or PowerSh
     .venv\Scripts\python.exe -m pip install -r requirements-kiosk.txt
     .venv\Scripts\python.exe run_kiosk_dev.py
 
-The face detector is tracked through Git LFS. The development launcher checks that it is present and is not an LFS pointer file. The YOLO Pose weights are downloaded automatically when missing, so the first preparation requires internet access.
+Both model files must already be present in **models/yolo/** before running the application or building the bundle. The face detector is tracked through Git LFS, so developers cloning the repository should run **git lfs pull** when needed. The development launcher validates both files locally and stops with a clear error if either file is missing or incomplete. It never downloads model weights.
 
 **run_kiosk_dev.py** also checks the QRC resource inputs and regenerates **resources_rc.py** when it is missing or older than a referenced source file, including **qml/KioskMain.qml**. There is normally no need to run **pyside6-rcc** manually after editing the QML UI or the QRC manifest.
 
@@ -36,7 +36,7 @@ Run the dedicated build script:
 
     scripts\windows\build_kiosk_exe.bat
 
-The build script prepares the model assets, forces a fresh Qt resource compilation, runs PyInstaller, verifies that the executable exists, and copies both model files into the completed bundle.
+The build script validates both local model files, forces a fresh Qt resource compilation, runs PyInstaller, verifies that the executable exists, and copies both model files into the completed bundle. If either model is missing or incomplete, the build stops; it never downloads model weights.
 
 The output layout is:
 

@@ -8,6 +8,7 @@ from io import StringIO
 from unittest.mock import patch
 
 from tools.build import build_kiosk_exe
+from app.components.member_photo_kiosk.model_assets import MINIMUM_MODEL_BYTES, is_model_file_valid
 
 
 class KioskBuildDurationTests(unittest.TestCase):
@@ -28,8 +29,8 @@ class KioskBuildDurationTests(unittest.TestCase):
             source_directory.mkdir()
             face_source = source_directory / "yolov8n-face-lindevs.pt"
             pose_source = source_directory / "yolo26n-pose.pt"
-            face_source.write_bytes(b"f" * (build_kiosk_exe.MINIMUM_MODEL_BYTES + 1))
-            pose_source.write_bytes(b"p" * (build_kiosk_exe.MINIMUM_MODEL_BYTES + 1))
+            face_source.write_bytes(b"f" * (MINIMUM_MODEL_BYTES + 1))
+            pose_source.write_bytes(b"p" * (MINIMUM_MODEL_BYTES + 1))
 
             bundle_directory = root / "LibCamKiosk"
             bundle_directory.mkdir()
@@ -59,7 +60,7 @@ class KioskBuildDurationTests(unittest.TestCase):
             patch.object(build_kiosk_exe.time, "perf_counter", side_effect=[10.0, 13.8]),
             patch.object(
                 build_kiosk_exe,
-                "check_face_model",
+                "check_model_files",
                 side_effect=FileNotFoundError("missing model for test"),
             ),
             redirect_stdout(stdout),
@@ -70,6 +71,37 @@ class KioskBuildDurationTests(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertIn("Build duration: 00:00:03", stdout.getvalue())
         self.assertIn("Kiosk build failed", stderr.getvalue())
+
+
+class ModelAssetValidationTests(unittest.TestCase):
+    def test_model_file_validation_rejects_missing_and_incomplete_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            missing_path = root / "missing.pt"
+            small_path = root / "small.pt"
+            valid_path = root / "valid.pt"
+
+            small_path.write_bytes(b"x" * (MINIMUM_MODEL_BYTES - 1))
+            valid_path.write_bytes(b"x" * MINIMUM_MODEL_BYTES)
+
+            self.assertFalse(is_model_file_valid(missing_path))
+            self.assertFalse(is_model_file_valid(small_path))
+            self.assertTrue(is_model_file_valid(valid_path))
+
+    def test_model_assets_and_launchers_contain_no_download_implementation(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        relative_paths = (
+            "app/components/member_photo_kiosk/model_assets.py",
+            "run_kiosk_dev.py",
+            "tools/build/build_kiosk_exe.py",
+        )
+        forbidden_tokens = ("urlopen", "urlretrieve", "urllib", "POSE_MODEL_URL", "ensure_pose_model")
+
+        for relative_path in relative_paths:
+            source = (root / relative_path).read_text(encoding="utf-8")
+            for token in forbidden_tokens:
+                with self.subTest(path=relative_path, token=token):
+                    self.assertNotIn(token, source)
 
 
 if __name__ == "__main__":
