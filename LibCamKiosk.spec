@@ -9,7 +9,7 @@ from PyInstaller.building.datastruct import Tree
 ROOT = Path(SPEC).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from app.components.member_photo_kiosk.model_assets import is_model_file_valid
+from app.components.member_photo_kiosk.model_assets import is_model_file_available
 ENTRY_POINT = ROOT / "kiosk_main.py"
 ICON = ROOT / "resources" / "images" / "app-icon.ico"
 FACE_MODEL = ROOT / "models" / "yolo" / "yolov8n-face-lindevs.pt"
@@ -19,7 +19,7 @@ QML_IMPORTS = Path(PySide6.__file__).resolve().parent / "qml"
 for required_file in (ENTRY_POINT, ICON, FACE_MODEL, POSE_MODEL):
     if not required_file.is_file():
         raise FileNotFoundError(f"Required Kiosk build input is missing: {required_file}")
-    if required_file in (FACE_MODEL, POSE_MODEL) and not is_model_file_valid(required_file):
+    if required_file in (FACE_MODEL, POSE_MODEL) and not is_model_file_available(required_file):
         raise FileNotFoundError(
             "Model file is empty or an unresolved Git LFS pointer: "
             f"{required_file}"

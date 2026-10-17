@@ -8,7 +8,7 @@ from io import StringIO
 from unittest.mock import patch
 
 from tools.build import build_kiosk_exe
-from app.components.member_photo_kiosk.model_assets import is_model_file_valid
+from app.components.member_photo_kiosk.model_assets import is_model_file_available
 
 
 class KioskBuildDurationTests(unittest.TestCase):
@@ -92,10 +92,10 @@ class ModelAssetValidationTests(unittest.TestCase):
             # No arbitrary file-size threshold is applied.
             small_local_file_path.write_bytes(b"local model content")
 
-            self.assertFalse(is_model_file_valid(missing_path))
-            self.assertFalse(is_model_file_valid(empty_path))
-            self.assertFalse(is_model_file_valid(lfs_pointer_path))
-            self.assertTrue(is_model_file_valid(small_local_file_path))
+            self.assertFalse(is_model_file_available(missing_path))
+            self.assertFalse(is_model_file_available(empty_path))
+            self.assertFalse(is_model_file_available(lfs_pointer_path))
+            self.assertTrue(is_model_file_available(small_local_file_path))
 
     def test_model_assets_and_launchers_contain_no_download_implementation(self) -> None:
         root = Path(__file__).resolve().parents[1]

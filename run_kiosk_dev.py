@@ -5,14 +5,14 @@ from __future__ import annotations
 import subprocess
 import sys
 
-from app.components.member_photo_kiosk.model_assets import is_model_file_valid
+from app.components.member_photo_kiosk.model_assets import is_model_file_available
 from app.components.member_photo_kiosk.paths import face_model_path, pose_model_path
 
 
 def run() -> int:
     try:
         model_paths = (face_model_path(), pose_model_path())
-        invalid_paths = [path for path in model_paths if not is_model_file_valid(path)]
+        invalid_paths = [path for path in model_paths if not is_model_file_available(path)]
         if invalid_paths:
             paths = "\n".join(str(path) for path in invalid_paths)
             raise FileNotFoundError(

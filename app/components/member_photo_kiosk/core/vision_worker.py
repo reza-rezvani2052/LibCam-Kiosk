@@ -14,7 +14,7 @@ from app.components.member_photo_kiosk.core.gesture_detector import (
     is_hand_raised,
 )
 from app.components.member_photo_kiosk.core.image_cropper import crop_detected_face
-from app.components.member_photo_kiosk.model_assets import is_model_file_valid
+from app.components.member_photo_kiosk.model_assets import is_model_file_available
 from app.components.member_photo_kiosk.paths import face_model_path, pose_model_path
 
 logger = logging.getLogger("libcam_kiosk")
@@ -110,7 +110,7 @@ class KioskVisionWorker(QObject):
     def _load_models(self) -> bool:
         missing = [
             path for path in (self.pose_path, self.face_path)
-            if not is_model_file_valid(path)
+            if not is_model_file_available(path)
         ]
         if missing:
             paths = "\n".join(str(path) for path in missing)

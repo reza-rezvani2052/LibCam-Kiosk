@@ -10,7 +10,7 @@ from pathlib import Path
 GIT_LFS_POINTER_HEADER = b"version https://git-lfs.github.com/spec/v1"
 
 
-def is_model_file_valid(model_path: Path) -> bool:
+def is_model_file_available(model_path: Path) -> bool:
     """Reject missing, empty, and unresolved Git LFS pointer files."""
     path = Path(model_path)
     try:

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from app.components.member_photo_kiosk.model_assets import (  # noqa: E402
-    is_model_file_valid,
+    is_model_file_available,
 )
 from app.components.member_photo_kiosk.paths import face_model_path, pose_model_path  # noqa: E402
 from tools.build.build_qml_resources import convert_qrc_file_to_python  # noqa: E402
@@ -21,7 +21,7 @@ from tools.build.build_qml_resources import convert_qrc_file_to_python  # noqa: 
 def check_model_files() -> None:
     """Fail fast unless both required model files are present locally."""
     model_paths = (face_model_path(), pose_model_path())
-    invalid_paths = [path for path in model_paths if not is_model_file_valid(path)]
+    invalid_paths = [path for path in model_paths if not is_model_file_available(path)]
     if invalid_paths:
         paths = "\n".join(str(path) for path in invalid_paths)
         raise FileNotFoundError(
@@ -36,7 +36,7 @@ def copy_runtime_models(bundle_directory: Path) -> Path:
     """Copy model weights beside the executable, outside PyInstaller's _internal directory."""
     sources = (face_model_path(), pose_model_path())
     for source in sources:
-        if not is_model_file_valid(source):
+        if not is_model_file_available(source):
             raise FileNotFoundError(
                 f"Required model is missing, empty, or an unresolved Git LFS pointer: {source}"
             )
