@@ -68,7 +68,7 @@ exe = EXE(
     analysis.scripts,
     [],
     exclude_binaries=True,
-    name="LibCamKiosk",
+    name="LibCam-Kiosk",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -83,5 +83,5 @@ bundle = COLLECT(
     analysis.datas,
     strip=False,
     upx=False,
-    name="LibCamKiosk",
+    name="LibCam-Kiosk",
 )
