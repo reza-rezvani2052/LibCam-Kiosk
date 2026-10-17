@@ -66,7 +66,7 @@ Runtime model paths are defined in **app/components/member_photo_kiosk/paths.py*
 
 - **models/yolo/yolov8n-face-lindevs.pt**: the face detector; it is tracked using Git LFS in the source repository.
 - **models/yolo/yolo26n-pose.pt**: the YOLO Pose weights supplied locally by the developer.
-- **model_assets.py** validates local model files and rejects missing, undersized, or likely Git-LFS-pointer files. It performs no network access. Source runs and builds fail with a clear error if either model is absent or incomplete.
+- **model_assets.py** validates local model files and rejects missing files, empty files, and unresolved Git-LFS pointers by checking the pointer header rather than applying an arbitrary size threshold. It performs no network access.
 
 The PyInstaller build is isolated from the main application's packaging. **LibCamKiosk.spec** resolves Qt Quick imports from the active PySide6 installation's **qml** directory and adds the QML tree to the analysis data. PyInstaller's default **_internal/** layout is retained for dependencies and QML modules; models are not included in the spec's data list.
 
@@ -79,7 +79,7 @@ The PyInstaller build is isolated from the main application's packaging. **LibCa
 5. Copy both model files to **dist/kiosk/LibCamKiosk/models/yolo/**, next to the executable and outside **_internal/**.
 6. Print build success or failure and always print elapsed time in **HH:MM:SS** format.
 
-The Windows wrapper is **scripts/windows/build_kiosk_exe.bat**. Incomplete or Git-LFS-pointer model files are rejected before packaging.
+The Windows wrapper is **scripts/windows/build_kiosk_exe.bat**. Missing, empty, or unresolved Git-LFS-pointer model files are rejected before packaging.
 
 ## Tests and CI
 

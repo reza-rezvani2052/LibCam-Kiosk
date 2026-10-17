@@ -25,7 +25,7 @@ def check_model_files() -> None:
     if invalid_paths:
         paths = "\n".join(str(path) for path in invalid_paths)
         raise FileNotFoundError(
-            "Required model file(s) are missing or incomplete:\n"
+            "Required model file(s) are missing, empty, or unresolved Git LFS pointers:\n"
             f"{paths}\n"
             "Place both model files in the repository's models/yolo directory. "
             "The build does not download model files."
@@ -38,7 +38,7 @@ def copy_runtime_models(bundle_directory: Path) -> Path:
     for source in sources:
         if not is_model_file_valid(source):
             raise FileNotFoundError(
-                f"Required model is missing or incomplete: {source}"
+                f"Required model is missing, empty, or an unresolved Git LFS pointer: {source}"
             )
 
     destination = Path(bundle_directory) / "models" / "yolo"

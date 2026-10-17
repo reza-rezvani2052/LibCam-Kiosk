@@ -16,7 +16,7 @@ def run() -> int:
         if invalid_paths:
             paths = "\n".join(str(path) for path in invalid_paths)
             raise FileNotFoundError(
-                "Required model file(s) are missing or incomplete:\n"
+                "Required model file(s) are missing, empty, or unresolved Git LFS pointers:\n"
                 f"{paths}\n"
                 "Place both model files in the repository's models/yolo directory. "
                 "The development launcher does not download model files."

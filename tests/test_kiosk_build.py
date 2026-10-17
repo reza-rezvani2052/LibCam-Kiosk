@@ -8,7 +8,7 @@ from io import StringIO
 from unittest.mock import patch
 
 from tools.build import build_kiosk_exe
-from app.components.member_photo_kiosk.model_assets import MINIMUM_MODEL_BYTES, is_model_file_valid
+from app.components.member_photo_kiosk.model_assets import is_model_file_valid
 
 
 class KioskBuildDurationTests(unittest.TestCase):
@@ -29,8 +29,8 @@ class KioskBuildDurationTests(unittest.TestCase):
             source_directory.mkdir()
             face_source = source_directory / "yolov8n-face-lindevs.pt"
             pose_source = source_directory / "yolo26n-pose.pt"
-            face_source.write_bytes(b"f" * (MINIMUM_MODEL_BYTES + 1))
-            pose_source.write_bytes(b"p" * (MINIMUM_MODEL_BYTES + 1))
+            face_source.write_bytes(b"face model weights")
+            pose_source.write_bytes(b"pose model weights")
 
             bundle_directory = root / "LibCamKiosk"
             bundle_directory.mkdir()
@@ -74,19 +74,28 @@ class KioskBuildDurationTests(unittest.TestCase):
 
 
 class ModelAssetValidationTests(unittest.TestCase):
-    def test_model_file_validation_rejects_missing_and_incomplete_files(self) -> None:
+    def test_model_file_validation_rejects_missing_empty_and_lfs_pointer_files(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             missing_path = root / "missing.pt"
-            small_path = root / "small.pt"
-            valid_path = root / "valid.pt"
+            empty_path = root / "empty.pt"
+            lfs_pointer_path = root / "pointer.pt"
+            small_local_file_path = root / "small-local-file.pt"
 
-            small_path.write_bytes(b"x" * (MINIMUM_MODEL_BYTES - 1))
-            valid_path.write_bytes(b"x" * MINIMUM_MODEL_BYTES)
+            empty_path.write_bytes(b"")
+            lfs_pointer_path.write_text(
+                "version https://git-lfs.github.com/spec/v1\n"
+                "oid sha256:0123456789abcdef\n"
+                "size 123456\n",
+                encoding="utf-8",
+            )
+            # No arbitrary file-size threshold is applied.
+            small_local_file_path.write_bytes(b"local model content")
 
             self.assertFalse(is_model_file_valid(missing_path))
-            self.assertFalse(is_model_file_valid(small_path))
-            self.assertTrue(is_model_file_valid(valid_path))
+            self.assertFalse(is_model_file_valid(empty_path))
+            self.assertFalse(is_model_file_valid(lfs_pointer_path))
+            self.assertTrue(is_model_file_valid(small_local_file_path))
 
     def test_model_assets_and_launchers_contain_no_download_implementation(self) -> None:
         root = Path(__file__).resolve().parents[1]
@@ -95,7 +104,14 @@ class ModelAssetValidationTests(unittest.TestCase):
             "run_kiosk_dev.py",
             "tools/build/build_kiosk_exe.py",
         )
-        forbidden_tokens = ("urlopen", "urlretrieve", "urllib", "POSE_MODEL_URL", "ensure_pose_model")
+        forbidden_tokens = (
+            "urlopen",
+            "urlretrieve",
+            "urllib",
+            "POSE_MODEL_URL",
+            "ensure_pose_model",
+            "MINIMUM_MODEL_BYTES",
+        )
 
         for relative_path in relative_paths:
             source = (root / relative_path).read_text(encoding="utf-8")

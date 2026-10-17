@@ -115,7 +115,7 @@ class KioskVisionWorker(QObject):
         if missing:
             paths = "\n".join(str(path) for path in missing)
             self.error.emit(
-                "فایل مدل موردنیاز پیدا نشد یا ناقص است:\n"
+                "فایل مدل موردنیاز پیدا نشد، خالی است یا فایل اشاره‌گر Git LFS است:\n"
                 f"{paths}\n\n"
                 "هر دو فایل مدل باید از قبل در پوشه models/yolo کنار برنامه قرار داشته باشند. "
                 "برنامه هیچ فایلی را از اینترنت دانلود نمی‌کند."
