@@ -18,7 +18,7 @@ from PySide6.QtCore import (
     Qt,
     Signal,
     Slot,
-)
+    )
 from PySide6.QtGui import QDesktopServices, QImage, QPainter
 from PySide6.QtCore import QRectF
 from PySide6.QtQuick import QQuickPaintedItem
@@ -51,12 +51,12 @@ class VideoFrameItem(QQuickPaintedItem):
         display_frame = cv2.flip(frame, 1) if mirror else frame
         rgb = cv2.cvtColor(display_frame, cv2.COLOR_BGR2RGB)
         image = QImage(
-            rgb.data,
-            rgb.shape[1],
-            rgb.shape[0],
-            rgb.strides[0],
-            QImage.Format.Format_RGB888,
-        )
+                rgb.data,
+                rgb.shape[1],
+                rgb.shape[0],
+                rgb.strides[0],
+                QImage.Format.Format_RGB888,
+                )
         self._image = image.copy()
         self.update()
 
@@ -74,17 +74,17 @@ class VideoFrameItem(QQuickPaintedItem):
             return
 
         scale = min(
-            bounds.width() / self._image.width(),
-            bounds.height() / self._image.height(),
-        )
+                bounds.width() / self._image.width(),
+                bounds.height() / self._image.height(),
+                )
         width = self._image.width() * scale
         height = self._image.height() * scale
         target = QRectF(
-            bounds.x() + (bounds.width() - width) / 2,
-            bounds.y() + (bounds.height() - height) / 2,
-            width,
-            height,
-        )
+                bounds.x() + (bounds.width() - width) / 2,
+                bounds.y() + (bounds.height() - height) / 2,
+                width,
+                height,
+                )
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
         painter.drawImage(target, self._image)
 
@@ -98,11 +98,11 @@ class KioskController(QObject):
     CAMERA_TIMER_INTERVAL_MS = 33
 
     def __init__(
-        self,
-        *,
-        allow_virtual_cameras: bool = False,
-        parent: QObject | None = None,
-    ) -> None:
+            self,
+            *,
+            allow_virtual_cameras: bool = False,
+            parent: QObject | None = None,
+            ) -> None:
         super().__init__(parent)
         self._allow_virtual_cameras = allow_virtual_cameras
         self.camera = CameraController(self)
@@ -136,26 +136,26 @@ class KioskController(QObject):
     isReview = Property(bool, lambda self: self._mode == "review", notify=uiStateChanged)
     isSaved = Property(bool, lambda self: self._mode == "saved", notify=uiStateChanged)
     canCapture = Property(
-        bool,
-        lambda self: (
-            self._mode == "live"
-            and self._camera_ready
-            and self._vision_ready
-            and self._privacy_cleanup_ok
-            and self._vision_worker is not None
-        ),
-        notify=uiStateChanged,
-    )
+            bool,
+            lambda self: (
+                    self._mode == "live"
+                    and self._camera_ready
+                    and self._vision_ready
+                    and self._privacy_cleanup_ok
+                    and self._vision_worker is not None
+            ),
+            notify=uiStateChanged,
+            )
     hasCapturedPhoto = Property(
-        bool, lambda self: self._captured_image is not None, notify=uiStateChanged
-    )
+            bool, lambda self: self._captured_image is not None, notify=uiStateChanged
+            )
     outputPath = Property(str, lambda self: str(self._output_file), constant=True)
 
     @staticmethod
     def _get_output_file() -> Path:
         pictures_dir = QStandardPaths.writableLocation(
-            QStandardPaths.StandardLocation.PicturesLocation
-        )
+                QStandardPaths.StandardLocation.PicturesLocation
+                )
         base_dir = Path(pictures_dir) if pictures_dir else Path.home() / "Pictures"
         return base_dir / "LibCam Kiosk" / "samanpl.jpg"
 
@@ -174,9 +174,9 @@ class KioskController(QObject):
         self._privacy_cleanup_ok = self._remove_previous_photo_at_startup()
         if not self._privacy_cleanup_ok:
             self._set_status(
-                "عکس قبلی پاک نشد؛ برای حفظ حریم خصوصی، ثبت عکس غیرفعال است.",
-                error=True,
-            )
+                    "عکس قبلی پاک نشد؛ برای حفظ حریم خصوصی، ثبت عکس غیرفعال است.",
+                    error=True,
+                    )
 
         if self._privacy_cleanup_ok:
             self._set_status("در حال آماده‌سازی دوربین و مدل‌های تشخیص تصویر…")
@@ -188,9 +188,9 @@ class KioskController(QObject):
         """Remove only Kiosk-owned output, never other files in the directory."""
         try:
             for path in (
-                self._output_file,
-                self._output_file.with_name("samanpl.tmp.jpg"),
-            ):
+                    self._output_file,
+                    self._output_file.with_name("samanpl.tmp.jpg"),
+                    ):
                 path.unlink(missing_ok=True)
             return True
         except OSError:
@@ -221,10 +221,10 @@ class KioskController(QObject):
             (position, device)
             for position, device in enumerate(devices)
             if is_camera_allowed(
-                device.description,
-                allow_virtual_cameras=self._allow_virtual_cameras,
-            )
-        ]
+                    device.description,
+                    allow_virtual_cameras=self._allow_virtual_cameras,
+                    )
+            ]
 
         if not candidates:
             self._set_camera_ready(False)
@@ -261,11 +261,11 @@ class KioskController(QObject):
             self._set_camera_ready(True)
             self._camera_timer.start()
             logger.info(
-                "Kiosk camera opened: %s (index %s, virtual allowed: %s)",
-                device.description,
-                camera_index,
-                self._allow_virtual_cameras,
-            )
+                    "Kiosk camera opened: %s (index %s, virtual allowed: %s)",
+                    device.description,
+                    camera_index,
+                    self._allow_virtual_cameras,
+                    )
             if self._vision_ready:
                 self._set_ready_status()
             else:
@@ -288,9 +288,9 @@ class KioskController(QObject):
                 self.camera.release()
                 self._set_camera_ready(False)
                 self._set_status(
-                    "دریافت تصویر از دوربین متوقف شد؛ اتصال وب‌کم را بررسی کنید.",
-                    error=True,
-                )
+                        "دریافت تصویر از دوربین متوقف شد؛ اتصال وب‌کم را بررسی کنید.",
+                        error=True,
+                        )
             return
 
         self._camera_read_failures = 0
@@ -325,13 +325,13 @@ class KioskController(QObject):
     def _set_ready_status(self) -> None:
         if not self._privacy_cleanup_ok:
             self._set_status(
-                "عکس قبلی پاک نشد؛ برای حفظ حریم خصوصی، ثبت عکس غیرفعال است.",
-                error=True,
-            )
+                    "عکس قبلی پاک نشد؛ برای حفظ حریم خصوصی، ثبت عکس غیرفعال است.",
+                    error=True,
+                    )
             return
         self._set_status(
-            "برای ثبت خودکار، یکی از دست‌ها را بالا ببرید؛ یا دکمهٔ «گرفتن عکس» را بزنید."
-        )
+                "برای ثبت خودکار، یکی از دست‌ها را بالا ببرید؛ یا دکمهٔ «گرفتن عکس» را بزنید."
+                )
 
     @Slot()
     def captureManually(self) -> None:  # noqa: N802
@@ -352,10 +352,10 @@ class KioskController(QObject):
     def _on_capture_started(self, source: str) -> None:
         self._set_mode("processing")
         self._set_status(
-            "ژست دست تشخیص داده شد؛ در حال آماده‌سازی عکس…"
-            if source == "gesture"
-            else "در حال بررسی چهره و آماده‌سازی عکس…"
-        )
+                "ژست دست تشخیص داده شد؛ در حال آماده‌سازی عکس…"
+                if source == "gesture"
+                else "در حال بررسی چهره و آماده‌سازی عکس…"
+                )
 
     def _on_photo_ready(self, image: np.ndarray, source: str) -> None:
         self._captured_image = image.copy()
@@ -364,8 +364,8 @@ class KioskController(QObject):
             self._video_item.set_frame(self._captured_image, mirror=False)
         self._set_mode("review")
         self._set_status(
-            "صورت را بررسی کنید؛ اگر کامل و واضح است، «ذخیره تصویر» را بزنید."
-        )
+                "صورت را بررسی کنید؛ اگر کامل و واضح است، «ذخیره تصویر» را بزنید."
+                )
         logger.info("Kiosk portrait prepared from %s trigger.", source)
 
     def _on_capture_failed(self, message: str) -> None:
@@ -388,10 +388,10 @@ class KioskController(QObject):
         try:
             self._output_file.parent.mkdir(parents=True, exist_ok=True)
             written = cv2.imwrite(
-                str(temporary_path),
-                self._captured_image,
-                [cv2.IMWRITE_JPEG_QUALITY, 95],
-            )
+                    str(temporary_path),
+                    self._captured_image,
+                    [cv2.IMWRITE_JPEG_QUALITY, 95],
+                    )
             if not written:
                 raise OSError("OpenCV could not encode the captured image as JPG.")
             os.replace(temporary_path, self._output_file)
@@ -407,8 +407,8 @@ class KioskController(QObject):
         self._saved_photo = self._output_file
         self._set_mode("saved")
         self._set_status(
-            "عکس با فرمت JPG ذخیره شد. اکنون آن را در سامانهٔ سامان بارگذاری کنید."
-        )
+                "عکس با فرمت JPG ذخیره شد. اکنون آن را در سامانهٔ سامان بارگذاری کنید."
+                )
         logger.info("Kiosk JPG saved to its dedicated output path.")
 
     @Slot()
@@ -454,9 +454,9 @@ class KioskController(QObject):
             self._privacy_cleanup_ok = False
             logger.exception("Could not remove the saved Kiosk photo.")
             self._set_status(
-                f"پاک کردن عکس قبلی ناموفق بود؛ برای حفظ حریم خصوصی فرایند بعدی آغاز نشد:\n{exc}",
-                error=True,
-            )
+                    f"پاک کردن عکس قبلی ناموفق بود؛ برای حفظ حریم خصوصی فرایند بعدی آغاز نشد:\n{exc}",
+                    error=True,
+                    )
             self.uiStateChanged.emit()
             return False
 
