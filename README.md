@@ -4,6 +4,11 @@
 
 This branch is intentionally a Kiosk-only source tree. It does not include the librarian application's database and member-management workflows, Gallery Builder, identity recognition, browser automation, or their dependencies.
 
+## System requirements
+
+- **Supported operating systems:** Windows 10 (64-bit) or later.
+- **Windows 7 and earlier versions are not supported.** The packaged application may fail to start on these systems.
+
 ## Features
 
 - A resizable Qt Quick/QML window with a dark navy and teal visual theme, an application-icon resource, a camera preview, an instruction/status panel, and a separate action bar.
