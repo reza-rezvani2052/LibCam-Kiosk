@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file alias="images/app-icon.ico">images/app-icon.ico</file>
+        <file alias="images/app-icon.png">images/app-icon.png</file>
         <file alias="qml/KioskMain.qml">../qml/KioskMain.qml</file>
     </qresource>
 </RCC>

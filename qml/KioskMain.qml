@@ -52,9 +52,12 @@ ApplicationWindow {
                 Image {
                     Layout.preferredWidth: 56
                     Layout.preferredHeight: 56
-                    source: "qrc:/images/app-icon.ico"
+
+                    source: "qrc:/images/app-icon.png"
+
                     fillMode: Image.PreserveAspectFit
                     smooth: true
+                    mipmap: true
                 }
 
                 ColumnLayout {
